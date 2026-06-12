@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adco. web and tech | Secure Gateway</title>
     
-    <!-- Load Google reCAPTCHA API script with your custom key -->
-    <script src="https://google.com"></script>
+    <!-- Load the official Cloudflare Turnstile API script -->
+    <script src="https://cloudflare.com" async defer></script>
 
     <style>
         * {
@@ -28,13 +28,13 @@
             position: relative;
             width: 100%;
             max-width: 480px;
-            min-height: 300px;
+            min-height: 320px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        /* Loading Screen Panel */
-        .loading-panel {
+        /* Verification Loading Panel */
+        .verification-panel {
             background: rgba(17, 24, 39, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -43,14 +43,14 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             width: 100%;
             text-align: center;
-            transition: all 0.4s ease;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             position: absolute;
             z-index: 2;
         }
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 45px;
+            height: 45px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
             border-top-color: #38bdf8;
             border-radius: 50%;
             margin: 0 auto 20px auto;
@@ -59,7 +59,15 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        /* Main Dashboard Content Card */
+        /* Hidden container to let Cloudflare process background token */
+        .turnstile-hidden {
+            display: flex;
+            justify-content: center;
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
+        }
+        /* Main Dashboard Channel Card */
         .card {
             background: rgba(17, 24, 39, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -72,7 +80,7 @@
             opacity: 0;
             transform: scale(0.95);
             pointer-events: none;
-            transition: all 0.5s ease;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             position: absolute;
             z-index: 1;
         }
@@ -127,23 +135,27 @@
             background-color: #dc2626;
             transform: translateY(-2px);
         }
-        /* Dynamic Utility Classes */
-        .hide { opacity: 0; pointer-events: none; transform: translateY(-10px); }
-        .show { opacity: 1; pointer-events: auto; transform: scale(1); }
+        /* State Utilities */
+        .hide-panel { opacity: 0; transform: translateY(-30px); pointer-events: none; }
+        .show-card { opacity: 1; transform: scale(1); pointer-events: auto; }
     </style>
 </head>
 <body>
 
     <div class="wrapper">
-        
-        <!-- Interactive Verification Screen Frame -->
-        <div class="loading-panel" id="loadingPanel">
+        <!-- Verification Screen Panel -->
+        <div class="verification-panel" id="verificationPanel">
             <div class="spinner"></div>
-            <h2 style="font-size: 1.2rem; margin-bottom: 8px;">Checking Browser Security</h2>
-            <p style="font-size: 0.9rem; color: #9ca3af;">Verifying connection parameters via Google reCAPTCHA...</p>
+            <h2 style="font-size: 1.2rem; margin-bottom: 8px;">Verifying Connection Security</h2>
+            <p style="font-size: 0.9rem; color: #9ca3af;">Securing link pathways via Cloudflare Turnstile...</p>
+            
+            <!-- Turnstile background placement target -->
+            <div class="turnstile-hidden">
+                <div id="turnstileWidget"></div>
+            </div>
         </div>
 
-        <!-- Verified Dashboard Main Window -->
+        <!-- Verified YouTube Landing Card -->
         <div class="card" id="mainCard">
             <div class="icon-container">
                 <svg class="youtube-icon" viewBox="0 0 24 24">
@@ -155,28 +167,38 @@
             <p>Welcome! Click below to browse official tutorial channels and media.</p>
             <a href="https://youtube.com" class="btn" rel="noopener noreferrer" target="_blank">Visit Channel</a>
         </div>
-
     </div>
 
-    <!-- Execute background validation challenge -->
     <script>
-        const SITE_KEY = '6LffwRstAAAAAPF_rFH8QOXiqLKQH6QNOk4eOzmz';
+        // Your live Cloudflare Turnstile non-interactive site key
+        const TURNSTILE_SITE_KEY = '0x4AAAAAADjjcGjFYxNfnvnI';
+
+        window.onloadTurnstileCallback = function () {
+            turnstile.render('#turnstileWidget', {
+                sitekey: TURNSTILE_SITE_KEY,
+                theme: 'dark',
+                callback: function(token) {
+                    // Executes immediately upon invisible background validation success
+                    setTimeout(() => {
+                        document.getElementById('verificationPanel').classList.add('hide-panel');
+                        document.getElementById('mainCard').classList.add('show-card');
+                    }, 1000);
+                },
+                'error-callback': function(error) {
+                    console.error("Turnstile widget verification loop exception:", error);
+                    // Fallback to unlock if network environment strips out cloudflare completely
+                    setTimeout(() => {
+                        document.getElementById('verificationPanel').classList.add('hide-panel');
+                        document.getElementById('mainCard').classList.add('show-card');
+                    }, 3000);
+                }
+            });
+        };
 
         window.addEventListener('DOMContentLoaded', () => {
-            grecaptcha.ready(function() {
-                grecaptcha.execute(SITE_KEY, {action: 'homepage'}).then(function(token) {
-                    
-                    // Smooth delay to process verification checks cleanly
-                    setTimeout(() => {
-                        document.getElementById('loadingPanel').classList.add('hide');
-                        document.getElementById('mainCard').classList.add('show');
-                    }, 1200);
-
-                }).catch(err => {
-                    console.error("reCAPTCHA failed initialization: ", err);
-                    document.getElementById('loadingPanel').innerHTML = "<h2 style='color:#ef4444;'>Verification Timeout</h2><p style='font-size:0.9rem; margin-top:8px;'>Please reload the page from your active Netlify domain.</p>";
-                });
-            });
+            if (typeof turnstile !== 'undefined' || window.onloadTurnstileCallback) {
+                window.onloadTurnstileCallback();
+            }
         });
     </script>
 </body>
