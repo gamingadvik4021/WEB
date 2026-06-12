@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adco. web and tech | Official Link</title>
+    <title>Adco. web and tech | Secure Gateway</title>
+    
+    <!-- Load Google reCAPTCHA API script with your custom key -->
+    <script src="https://google.com"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -20,6 +24,42 @@
             min-height: 100vh;
             padding: 20px;
         }
+        .wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* Loading Screen Panel */
+        .loading-panel {
+            background: rgba(17, 24, 39, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: absolute;
+            z-index: 2;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #38bdf8;
+            border-radius: 50%;
+            margin: 0 auto 20px auto;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Main Dashboard Content Card */
         .card {
             background: rgba(17, 24, 39, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -27,9 +67,14 @@
             padding: 40px;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            max-width: 480px;
             width: 100%;
             text-align: center;
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+            transition: all 0.5s ease;
+            position: absolute;
+            z-index: 1;
         }
         .icon-container {
             width: 70px;
@@ -48,10 +93,8 @@
         }
         h1 {
             font-size: 1.8rem;
-            font-weight: 700;
             color: #ffffff;
             margin-bottom: 8px;
-            letter-spacing: -0.5px;
         }
         .tagline {
             font-size: 0.95rem;
@@ -71,38 +114,70 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
             background-color: #ef4444;
             color: white;
             padding: 14px 28px;
             text-decoration: none;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 1.05rem;
             transition: all 0.2s ease;
             box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
         }
         .btn:hover {
             background-color: #dc2626;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
         }
+        /* Dynamic Utility Classes */
+        .hide { opacity: 0; pointer-events: none; transform: translateY(-10px); }
+        .show { opacity: 1; pointer-events: auto; transform: scale(1); }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div class="icon-container">
-            <!-- YouTube SVG Icon -->
-            <svg class="youtube-icon" viewBox="0 0 24 24">
-                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-            </svg>
+    <div class="wrapper">
+        
+        <!-- Interactive Verification Screen Frame -->
+        <div class="loading-panel" id="loadingPanel">
+            <div class="spinner"></div>
+            <h2 style="font-size: 1.2rem; margin-bottom: 8px;">Checking Browser Security</h2>
+            <p style="font-size: 0.9rem; color: #9ca3af;">Verifying connection parameters via Google reCAPTCHA...</p>
         </div>
-        <h1>Adco. web and tech</h1>
-        <div class="tagline">Technology & Development</div>
-        <p>Welcome! Click the button below to subscribe and explore the latest tech reviews, web development tutorials, and coding insights.</p>
-        <a href="https://www.youtube.com/channel/UCyeU2F-ned-KUKEpeiSGflw" class="btn" target="_blank">Visit Channel</a>
+
+        <!-- Verified Dashboard Main Window -->
+        <div class="card" id="mainCard">
+            <div class="icon-container">
+                <svg class="youtube-icon" viewBox="0 0 24 24">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93'.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+            </div>
+            <h1>Adco. web and tech</h1>
+            <div class="tagline">Technology & Development</div>
+            <p>Welcome! Click below to browse official tutorial channels and media.</p>
+            <a href="https://youtube.com" class="btn" rel="noopener noreferrer" target="_blank">Visit Channel</a>
+        </div>
+
     </div>
 
+    <!-- Execute background validation challenge -->
+    <script>
+        const SITE_KEY = '6LerehstAAAAAEQFA6CLEiThkxt-oDf9ZO12PYSE';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            grecaptcha.ready(function() {
+                grecaptcha.execute(SITE_KEY, {action: 'homepage'}).then(function(token) {
+                    
+                    // Smooth delay to process verification checks cleanly
+                    setTimeout(() => {
+                        document.getElementById('loadingPanel').classList.add('hide');
+                        document.getElementById('mainCard').classList.add('show');
+                    }, 1200);
+
+                }).catch(err => {
+                    console.error("reCAPTCHA failed initialization: ", err);
+                    document.getElementById('loadingPanel').innerHTML = "<h2 style='color:#ef4444;'>Verification Timeout</h2><p style='font-size:0.9rem; margin-top:8px;'>Please reload the page from your active Netlify domain.</p>";
+                });
+            });
+        });
+    </script>
 </body>
 </html>
