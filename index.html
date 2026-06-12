@@ -151,7 +151,7 @@
             
             <!-- Turnstile background placement target -->
             <div class="turnstile-hidden">
-                <div id="turnstileWidget"></div>
+                <div id="turnstileWidget" class="cf-turnstile" data-sitekey="0x4AAAAAADjjcGjFYxNfnvnI" data-callback="unlockPage" data-theme="dark"></div>
             </div>
         </div>
 
@@ -170,36 +170,26 @@
     </div>
 
     <script>
-        // Your live Cloudflare Turnstile non-interactive site key
-        const TURNSTILE_SITE_KEY = '0x4AAAAAADjjcGjFYxNfnvnI';
+        let pageUnlocked = false;
 
-        window.onloadTurnstileCallback = function () {
-            turnstile.render('#turnstileWidget', {
-                sitekey: TURNSTILE_SITE_KEY,
-                theme: 'dark',
-                callback: function(token) {
-                    // Executes immediately upon invisible background validation success
-                    setTimeout(() => {
-                        document.getElementById('verificationPanel').classList.add('hide-panel');
-                        document.getElementById('mainCard').classList.add('show-card');
-                    }, 1000);
-                },
-                'error-callback': function(error) {
-                    console.error("Turnstile widget verification loop exception:", error);
-                    // Fallback to unlock if network environment strips out cloudflare completely
-                    setTimeout(() => {
-                        document.getElementById('verificationPanel').classList.add('hide-panel');
-                        document.getElementById('mainCard').classList.add('show-card');
-                    }, 3000);
-                }
-            });
-        };
-
-        window.addEventListener('DOMContentLoaded', () => {
-            if (typeof turnstile !== 'undefined' || window.onloadTurnstileCallback) {
-                window.onloadTurnstileCallback();
+        // This function executes automatically as soon as Cloudflare passes the check
+        function unlockPage(token) {
+            if (!pageUnlocked) {
+                pageUnlocked = true;
+                setTimeout(() => {
+                    document.getElementById('verificationPanel').classList.add('hide-panel');
+                    document.getElementById('mainCard').classList.add('show-card');
+                }, 800);
             }
-        });
+        }
+
+        // Safety Fallback: If network blocks Cloudflare completely, force access after 4 seconds
+        setTimeout(() => {
+            if (!pageUnlocked) {
+                console.warn("Turnstile loading bypass active.");
+                unlockPage();
+            }
+        }, 4000);
     </script>
 </body>
 </html>
